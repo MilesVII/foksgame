@@ -1,0 +1,23 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "cppvsdbg",
+			"request": "launch",
+			"preLaunchTask": "Build",
+			"name": "Client",
+			"program": "${workspaceFolder}/build/debug.exe",
+			"args": ["--name", "alpha"],
+			"cwd": "${workspaceFolder}"
+		},
+		{
+			"type": "cppvsdbg",
+			"request": "launch",
+			"preLaunchTask": "Build",
+			"name": "Server",
+			"program": "${workspaceFolder}/build/debug.exe",
+			"args": ["--mode", "server"],
+			"cwd": "${workspaceFolder}"
+		}
+	]
+}
