@@ -4,7 +4,7 @@ import rl "vendor:raylib"
 
 import "core:fmt"
 import "core:net"
-import "core:math"
+import "core:math/rand"
 import "core:math/linalg"
 
 Tile :: struct {
@@ -53,12 +53,17 @@ testiles := []Tile {
 
 Player :: struct {
 	position: [2]f32,
-	velocity: [2]f32
+	velocity: [2]f32,
+	motion: MotionState,
+	animation: AnimationState
 }
 
 State :: struct {
 	tiles: []Tile,
-	player: Player
+	player: Player,
+	assets: struct {
+		fops: SpriteSheet
+	}
 }
 
 game :: proc() {
@@ -68,7 +73,7 @@ game :: proc() {
 	
 	rl.SetTraceLogLevel(.WARNING)
 	rl.SetConfigFlags({ .WINDOW_RESIZABLE })
-	rl.InitWindow(windowSize.x, windowSize.y, "SWGRedux")
+	rl.InitWindow(1900, 900, "SWGRedux")
 	defer rl.CloseWindow()
 
 	rl.SetExitKey(.KEY_NULL)
@@ -77,7 +82,10 @@ game :: proc() {
 	onResize()
 	// rl.InitAudioDevice()
 
+	gameState.assets.fops = loadFopsSheet()
+
 	for !rl.WindowShouldClose() {
+		updateUI()
 		if rl.IsKeyPressed(.R) {
 			gameState = State {
 				tiles = testiles
@@ -98,7 +106,13 @@ drawWorld :: proc(state: ^State) {
 	for tile in state.tiles {
 		drawBox(f32(tile.position.x), f32(tile.position.y), tile.color)
 	}
-	drawBox(state.player.position.x, state.player.position.y, rl.GREEN)
+	// drawBox(state.player.position.x, state.player.position.y, rl.GREEN)
+	drawFrame(
+		state.assets.fops,
+		animationFrame(&state.player.animation),
+		state.player.motion.direction == .LEFT,
+		state.player.position
+	)
 }
 
 @(private)
@@ -119,5 +133,6 @@ drawPostFx :: proc(rt: rl.RenderTexture2D) {
 @(private)
 update :: proc(state: ^State) {
 	updateControls()
-	updateKinetics(state)
+	state.player.motion = updateKinetics(state)
+	updateAnimation(&state.player.animation, &state.player.motion)
 }

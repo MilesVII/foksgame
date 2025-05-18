@@ -16,7 +16,7 @@ camera := rl.Camera2D {
 	offset = windowSizeF() * .32,
 	target = rl.Vector2 {0, 0},
 	rotation = 0.0,
-	zoom = 20.0,
+	zoom = 42.0,
 }
 pointer: rl.Vector2
 
@@ -33,7 +33,7 @@ onResize :: proc() {
 	rtLoaded = true
 }
 
-updateIO :: proc() {
+updateUI :: proc() {
 	if rl.IsWindowResized() do onResize()
 	dt := rl.GetFrameTime()
 	pointer = rl.GetScreenToWorld2D(rl.GetMousePosition(), camera)

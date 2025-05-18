@@ -13,7 +13,7 @@ GRAV_FORS    := f32(.06) / 32
 @(private="file")
 JUMP_FORS    := f32(1.1) / 32
 @(private="file")
-MOVE_FORS    := f32(.17) / 32
+MOVE_FORS    := f32(.07) / 32
 @(private="file")
 BOUNCE_COEF  := f32(.3) / 32
 @(private="file")
@@ -25,8 +25,22 @@ FRICTION_GND := f32(.03)
 @(private="file")
 FRICTION_AIR := f32(.03)
 
+MotionStatePose :: enum {
+	STAND, FALL, GRIP, RUN
+}
+MotionStateDirection :: enum {
+	LEFT, RITE
+}
+MotionState :: struct {
+	pose: MotionStatePose,
+	direction: MotionStateDirection,
+	landed: bool,
+	poseChanged: bool
+}
+
+
 @(private)
-updateKinetics :: proc(state: ^State) {
+updateKinetics :: proc(state: ^State) -> MotionState {
 	dt := rl.GetFrameTime() * 1000
 
 	// create deltaV from input
@@ -35,13 +49,13 @@ updateKinetics :: proc(state: ^State) {
 	if controls.rite do fors.x += MOVE_FORS * dt
 
 	// kill gravity if gripping
+	standADY := allowedDisplacement(state.player.position, { 0, -1 }, state.tiles, false)
+	standing := standADY.distance == 0
 	gripped := false
-	if fors.x != 0 {
+	if fors.x != 0 && !standing {
 		gripADX := allowedDisplacement(state.player.position, fors, state.tiles, true)
 		gripped = gripADX.distance == 0
 	}
-	standADY := allowedDisplacement(state.player.position, { 0, -1 }, state.tiles, false)
-	standing := standADY.distance == 0
 
 	// apply gravity in free fall
 	if !gripped && !standing do fors.y -= GRAV_FORS * dt
@@ -82,6 +96,21 @@ updateKinetics :: proc(state: ^State) {
 
 	state.player.velocity += fors
 	state.player.position += { fdx, fdy }
+
+	motionState: MotionState
+	motionState.direction = state.player.motion.direction
+	if state.player.velocity.x != 0 {
+		motionState.direction = state.player.velocity.x > 0 ? .RITE : .LEFT
+	}
+
+	motionState.pose = .FALL
+	if gripped do motionState.pose = .GRIP
+	else if standing do motionState.pose = state.player.velocity.x != 0 ? .RUN : .STAND
+
+	motionState.landed = state.player.motion.pose == .FALL && standing
+	motionState.poseChanged = motionState.pose != state.player.motion.pose
+
+	return motionState
 }
 
 CastResult :: struct {
