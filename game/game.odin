@@ -49,6 +49,14 @@ testiles := []Tile {
 	{ rl.BLACK, [2]int { 12, -1 } },
 	{ rl.BLACK, [2]int { 12, 0 } },
 	{ rl.BLACK, [2]int { 12, 1 } },
+	{ rl.BLACK, [2]int { 12, 2 } },
+	{ rl.BLACK, [2]int { 12, 3 } },
+	{ rl.BLACK, [2]int { 12, 4 } },
+	{ rl.BLACK, [2]int { 12, 5 } },
+	{ rl.BLACK, [2]int { 12, 6 } },
+	{ rl.BLACK, [2]int { 12, 7 } },
+	{ rl.BLACK, [2]int { 12, 8 } },
+	{ rl.BLACK, [2]int { 12, 9 } },
 }
 
 Player :: struct {
@@ -87,8 +95,9 @@ game :: proc() {
 	for !rl.WindowShouldClose() {
 		updateUI()
 		if rl.IsKeyPressed(.R) {
-			gameState = State {
-				tiles = testiles
+			gameState.player = {
+				position = { 0, 0 },
+				velocity = { 0, 0 }
 			}
 		}
 		update(&gameState)

@@ -26,19 +26,23 @@ controls: Controls
 KeyStateKind :: enum { Down, Pressed }
 
 @(private="file")
-key :: proc(key: string, stateKind: KeyStateKind) -> bool {
+key :: proc(oldState: bool, key: string, stateKind: KeyStateKind) -> bool {
 	mapping, found := mappings[key]
 	if !found do return false
+	active := oldState
 	for code in mapping {
-		active := stateKind == .Down ? rl.IsKeyDown(code) : rl.IsKeyPressed(code)
+		if stateKind == .Down {
+			if rl.IsKeyPressed(code) do active = true
+			if rl.IsKeyReleased(code) do active = false
+		} else do active = rl.IsKeyPressed(code)
 		if active do return true
 	}
 	return false
 }
 
 updateControls :: proc() {
-	controls.left = key("left", .Down)
-	controls.rite = key("rite", .Down)
-	controls.jump = key("jump", .Pressed)
-	controls.dash = key("dash", .Pressed)
+	controls.left = key(controls.left, "left", .Down)
+	controls.rite = key(controls.rite, "rite", .Down)
+	controls.jump = key(controls.jump, "jump", .Pressed)
+	controls.dash = key(controls.dash, "dash", .Pressed)
 }

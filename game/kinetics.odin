@@ -9,21 +9,27 @@ import "core:math/linalg"
 import "utils"
 
 @(private="file")
-GRAV_FORS    := f32(.06) / 32
+GRAV_FORS    := f32(0.0004375)
 @(private="file")
-JUMP_FORS    := f32(1.1) / 32
+JUMP_FORS    := f32(0.015625)
 @(private="file")
-MOVE_FORS    := f32(.07) / 32
+UNGRIP_FORS  := [2]f32 { -0.022, 0.015625 }
 @(private="file")
-BOUNCE_COEF  := f32(.3) / 32
+WALK_FORS    := f32(0.00042)
+@(private="file")
+FLY_FORS     := f32(0.00028)
+@(private="file")
+BOUNCE_COEF  := f32(.009375)
 @(private="file")
 BOUNCE_EPS   := f32(.00001)
 @(private="file")
-SLIDE_EPS    := f32(.00001)
+SLIDE_EPS    := f32(.001)
 @(private="file")
-FRICTION_GND := f32(.03)
+FRICTION_GND := f32(.0064)
 @(private="file")
-FRICTION_AIR := f32(.03)
+FRICTION_AIR := f32(.0024)
+@(private="file")
+FRICTION_GRP := f32(.03)
 
 MotionStatePose :: enum {
 	STAND, FALL, GRIP, RUN
@@ -35,7 +41,8 @@ MotionState :: struct {
 	pose: MotionStatePose,
 	direction: MotionStateDirection,
 	landed: bool,
-	poseChanged: bool
+	poseChanged: bool,
+	doubleJump: bool
 }
 
 
@@ -43,22 +50,26 @@ MotionState :: struct {
 updateKinetics :: proc(state: ^State) -> MotionState {
 	dt := rl.GetFrameTime() * 1000
 
-	// create deltaV from input
 	fors: [2]f32
-	if controls.left do fors.x -= MOVE_FORS * dt
-	if controls.rite do fors.x += MOVE_FORS * dt
 
-	// kill gravity if gripping
 	standADY := allowedDisplacement(state.player.position, { 0, -1 }, state.tiles, false)
 	standing := standADY.distance == 0
+	
+	controlFors := standing ? WALK_FORS : FLY_FORS
+	if controls.left do fors.x -= controlFors * dt
+	if controls.rite do fors.x += controlFors * dt
+	
 	gripped := false
 	if fors.x != 0 && !standing {
 		gripADX := allowedDisplacement(state.player.position, fors, state.tiles, true)
 		gripped = gripADX.distance == 0
 	}
 
+	if standing || gripped do state.player.motion.doubleJump = true
+
 	// apply gravity in free fall
-	if !gripped && !standing do fors.y -= GRAV_FORS * dt
+	if !standing do fors.y -= GRAV_FORS * dt
+	if gripped do fors.y -= state.player.velocity.y * FRICTION_GRP * dt
 
 	// friction dampening
 	friction := (standing ? FRICTION_GND : FRICTION_AIR) * dt
@@ -66,13 +77,14 @@ updateKinetics :: proc(state: ^State) -> MotionState {
 	fors.x += state.player.velocity.x * friction * -1
 
 	// modify velocity on jump
-	if controls.jump {
+	if controls.jump && state.player.motion.doubleJump {
+		if !standing && !gripped do state.player.motion.doubleJump = false
 		state.player.velocity.y = 0
 		if gripped {
-			fors += {
-				JUMP_FORS * 1.7 * math.sign(fors.x) * -1,
-				JUMP_FORS * .8
-			}
+			rite := math.sign(fors.x)
+			if rite > 0 do controls.rite = false
+			if rite < 0 do controls.left = false
+			fors += UNGRIP_FORS * { rite, 1 } * dt
 		} else do fors.y += JUMP_FORS * dt
 	}
 
@@ -97,8 +109,7 @@ updateKinetics :: proc(state: ^State) -> MotionState {
 	state.player.velocity += fors
 	state.player.position += { fdx, fdy }
 
-	motionState: MotionState
-	motionState.direction = state.player.motion.direction
+	motionState := state.player.motion
 	if state.player.velocity.x != 0 {
 		motionState.direction = state.player.velocity.x > 0 ? .RITE : .LEFT
 	}
