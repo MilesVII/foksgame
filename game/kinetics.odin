@@ -9,27 +9,25 @@ import "core:math/linalg"
 import "utils"
 
 @(private="file")
-GRAV_FORS    := f32(0.0004375)
+GRAV_FORS    := f32(.4375)
 @(private="file")
-JUMP_FORS    := f32(0.015625)
+JUMP_IMP     := f32(.1302)
 @(private="file")
-UNGRIP_FORS  := [2]f32 { -0.022, 0.015625 }
+UNGRIP_IMP   := [2]f32 { -.1833, .1302 }
 @(private="file")
-WALK_FORS    := f32(0.00042)
+WALK_FORS    := f32(.42)
 @(private="file")
-FLY_FORS     := f32(0.00028)
+FLY_FORS     := f32(.28)
 @(private="file")
-BOUNCE_COEF  := f32(.009375)
-@(private="file")
-BOUNCE_EPS   := f32(.00001)
+BOUNCE_EPS   := f32(.01)
 @(private="file")
 SLIDE_EPS    := f32(.001)
 @(private="file")
-FRICTION_GND := f32(.0064)
+FRICTION_GND := f32(6.4)
 @(private="file")
-FRICTION_AIR := f32(.0024)
+FRICTION_AIR := f32(2.4)
 @(private="file")
-FRICTION_GRP := f32(.03)
+FRICTION_GRP := f32(30)
 
 MotionStatePose :: enum {
 	STAND, FALL, GRIP, RUN
@@ -48,7 +46,7 @@ MotionState :: struct {
 
 @(private)
 updateKinetics :: proc(state: ^State) -> MotionState {
-	dt := rl.GetFrameTime() * 1000
+	dt := rl.GetFrameTime()
 
 	fors: [2]f32
 
@@ -84,8 +82,8 @@ updateKinetics :: proc(state: ^State) -> MotionState {
 			rite := math.sign(fors.x)
 			if rite > 0 do controls.rite = false
 			if rite < 0 do controls.left = false
-			fors += UNGRIP_FORS * { rite, 1 } * dt
-		} else do fors.y += JUMP_FORS * dt
+			fors += UNGRIP_IMP * { rite, 1 }
+		} else do fors.y += JUMP_IMP
 	}
 
 	intendedDisplacement := state.player.velocity + fors
@@ -98,9 +96,7 @@ updateKinetics :: proc(state: ^State) -> MotionState {
 
 	vBounce := ady.distance == abs(fdy)
 	if vBounce {
-		if ady.distance > BOUNCE_EPS {
-			state.player.velocity.y *= -BOUNCE_COEF
-		} else {
+		if ady.distance < BOUNCE_EPS {
 			state.player.velocity.y = 0
 			fors.y = 0
 		}
