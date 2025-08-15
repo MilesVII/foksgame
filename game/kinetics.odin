@@ -26,7 +26,7 @@ Config :: struct {
 CFG :: Config {
 	GRAV_FORS    = .4375,
 	JUMP_IMP     = .1002,
-	UNGRIP_IMP   = { -.2233, .1302 },
+	UNGRIP_IMP   = { -.1488, .1302 },
 	WALK_FORS    = .42,
 	FLY_FORS     = .28,
 	BOUNCE_EPS   = .01,
@@ -114,6 +114,11 @@ updateKinetics :: proc(state: ^State) -> MotionState {
 
 	state.player.velocity += fors
 	state.player.position += { fdx, fdy }
+
+	if (intendedDisplacement.x != 0 && adx.distance == 0) {
+		state.player.velocity.x = 0
+		fors.x = 0
+	}
 
 	motionState := state.player.motion
 	if state.player.velocity.x != 0 {
