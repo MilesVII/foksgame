@@ -81,7 +81,7 @@ game :: proc() {
 	
 	rl.SetTraceLogLevel(.WARNING)
 	rl.SetConfigFlags({ .WINDOW_RESIZABLE })
-	rl.InitWindow(1900, 900, "SWGRedux")
+	rl.InitWindow(windowSize.x, windowSize.y, "SWGRedux")
 	defer rl.CloseWindow()
 
 	rl.SetExitKey(.KEY_NULL)
@@ -93,7 +93,8 @@ game :: proc() {
 	gameState.assets.fops = loadFopsSheet()
 
 	for !rl.WindowShouldClose() {
-		updateUI()
+		updateUI(&gameState)
+
 		if rl.IsKeyPressed(.R) {
 			gameState.player = {
 				position = { 0, 0 },

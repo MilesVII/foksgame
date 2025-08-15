@@ -2,21 +2,24 @@ package game
 
 import rl "vendor:raylib"
 
+import "utils"
+
 import "core:fmt"
 import "core:strings"
 import "core:math"
 
-
-windowSize := [2]i32 { 640, 480 }
-windowSizeF :: proc() -> [2]f32 {
-	return [2]f32 { f32(windowSize.x), f32(windowSize.y) }
+@(private="file")
+iv2fv :: proc(v: [2]i32) -> [2]f32 {
+	return [2]f32 { f32(v.x), f32(v.y) }
 }
+windowSize := [2]i32 { 640, 480 }
+windowSizeF: [2]f32
+worldSpaceWindowSize: [2]f32
 
 camera := rl.Camera2D {
-	offset = windowSizeF() * .32,
 	target = rl.Vector2 {0, 0},
 	rotation = 0.0,
-	zoom = 42.0,
+	zoom = 96.0,
 }
 pointer: rl.Vector2
 
@@ -28,15 +31,23 @@ rtLoaded := false
 onResize :: proc() {
 	windowSize.x = rl.GetScreenWidth()
 	windowSize.y = rl.GetScreenHeight()
+	windowSizeF = iv2fv(windowSize)
+	worldSpaceWindowSize = rl.GetScreenToWorld2D(windowSizeF, camera) - camera.target
+	camera.offset = windowSizeF * .5
+
 	if rtLoaded do rl.UnloadRenderTexture(rt)
 	rt = rl.LoadRenderTexture(windowSize.x, windowSize.y)
 	rtLoaded = true
 }
 
-updateUI :: proc() {
+updateUI :: proc(state: ^State) {
 	if rl.IsWindowResized() do onResize()
 	dt := rl.GetFrameTime()
 	pointer = rl.GetScreenToWorld2D(rl.GetMousePosition(), camera)
+
+	followPosition := state.player.position + .5
+	followOffset := worldSpaceWindowSize * { .25, .25 }
+	camera.target = utils.vClamp(camera.target, followPosition - followOffset, followPosition + followOffset)
 }
 
 draw :: proc(

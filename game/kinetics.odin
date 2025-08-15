@@ -25,14 +25,14 @@ Config :: struct {
 @(private="file")
 CFG :: Config {
 	GRAV_FORS    = .4375,
-	JUMP_IMP     = .1302,
-	UNGRIP_IMP   = { -.1833, .1302 },
+	JUMP_IMP     = .1002,
+	UNGRIP_IMP   = { -.2233, .1302 },
 	WALK_FORS    = .42,
 	FLY_FORS     = .28,
 	BOUNCE_EPS   = .01,
 	SLIDE_EPS    = .001,
-	FRICTION_GND = 6.4,
-	FRICTION_AIR = 2.4,
+	FRICTION_GND = 7.9,
+	FRICTION_AIR = 6.9,
 	FRICTION_GRP = 30,
 	FORCE_UNGRIP = false
 }

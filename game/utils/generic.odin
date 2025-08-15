@@ -52,3 +52,10 @@ decayV :: proc(value: [2]f32, dec: f32, dt: f32) -> [2]f32 {
 signedClamp :: proc(value: $T, limit: T) -> T {
 	return clamp(value, -limit, limit)
 }
+
+vClamp :: proc(v: [2]f32, min: [2]f32, max: [2]f32) -> [2]f32 {
+	return {
+		clamp(v.x, min.x, max.x),
+		clamp(v.y, min.y, max.y)
+	}
+}
