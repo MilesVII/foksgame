@@ -55,15 +55,15 @@ draw :: proc(
 	gameState: ^State,
 	world: proc(gameState: ^State),
 	hud: proc(gameState: ^State),
-	pfx: proc(tex: rl.RenderTexture2D),
-	background: Maybe(proc()) = nil
+	pfx: proc(gameState: ^State, tex: rl.RenderTexture2D),
+	background: proc(gameState: ^State)
 ) {
 	rl.BeginTextureMode(rt)
 		rl.ClearBackground(rl.WHITE)
-		rl.BeginMode2D(camera)
 
-		back, backSet := background.?
-		if backSet do back()
+		background(gameState)
+
+		rl.BeginMode2D(camera)
 
 		world(gameState)
 
@@ -72,12 +72,12 @@ draw :: proc(
 		hud(gameState)
 	rl.EndTextureMode()
 
-	pfx(rt)
+	pfx(gameState, rt)
 
 	rl.BeginDrawing()
 		rl.DrawTextureRec(
 			rt.texture,
-			{ 0, 0, f32(rt.texture.width), f32(rt.texture.height) },
+			{ 0, 0, f32(rt.texture.width), f32(-rt.texture.height) },
 			{ 0, 0 }, rl.WHITE
 		)
 	rl.EndDrawing()

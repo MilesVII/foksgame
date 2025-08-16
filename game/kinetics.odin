@@ -25,8 +25,8 @@ Config :: struct {
 @(private="file")
 CFG :: Config {
 	GRAV_FORS    = .4375,
-	JUMP_IMP     = .1002,
-	UNGRIP_IMP   = { -.1488, .1302 },
+	JUMP_IMP     = -.1002,
+	UNGRIP_IMP   = { -.1488, -.1302 },
 	WALK_FORS    = .42,
 	FLY_FORS     = .28,
 	BOUNCE_EPS   = .01,
@@ -58,7 +58,7 @@ updateKinetics :: proc(state: ^State) -> MotionState {
 
 	fors: [2]f32
 
-	standADY := allowedDisplacement(state.player.position, { 0, -1 }, state.tiles, false)
+	standADY := allowedDisplacement(state.player.position, { 0, math.sign(CFG.GRAV_FORS) }, state.tiles, false)
 	standing := standADY.distance == 0
 	
 	controlFors := standing ? CFG.WALK_FORS : CFG.FLY_FORS
@@ -68,13 +68,13 @@ updateKinetics :: proc(state: ^State) -> MotionState {
 	gripped := false
 	if fors.x != 0 && !standing {
 		gripADX := allowedDisplacement(state.player.position, fors, state.tiles, true)
-		gripped = gripADX.distance == 0
+		gripped = state.player.velocity.y * math.sign(CFG.GRAV_FORS) > 0 && gripADX.distance == 0
 	}
 
 	if standing || gripped do state.player.motion.doubleJump = true
 
 	// apply gravity in free fall
-	if !standing do fors.y -= CFG.GRAV_FORS * dt
+	if !standing do fors.y += CFG.GRAV_FORS * dt
 	if gripped do fors.y -= state.player.velocity.y * CFG.FRICTION_GRP * dt
 
 	// friction dampening
