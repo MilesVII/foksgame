@@ -15,11 +15,11 @@ iv2fv :: proc(v: [2]i32) -> [2]f32 {
 windowSize := [2]i32 { 640, 480 }
 windowSizeF: [2]f32
 worldSpaceWindowSize: [2]f32
+TILES_IN_SCREEN :: 16
 
 camera := rl.Camera2D {
 	target = rl.Vector2 {0, 0},
 	rotation = 0.0,
-	zoom = 96.0,
 }
 pointer: rl.Vector2
 
@@ -32,6 +32,7 @@ onResize :: proc() {
 	windowSize.x = rl.GetScreenWidth()
 	windowSize.y = rl.GetScreenHeight()
 	windowSizeF = iv2fv(windowSize)
+	camera.zoom = windowSizeF.y / TILES_IN_SCREEN
 	worldSpaceWindowSize = rl.GetScreenToWorld2D(windowSizeF, camera) - camera.target
 	camera.offset = windowSizeF * .5
 
