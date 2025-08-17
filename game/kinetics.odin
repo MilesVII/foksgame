@@ -58,7 +58,7 @@ updateKinetics :: proc(state: ^State) -> MotionState {
 
 	fors: [2]f32
 
-	standADY := allowedDisplacement(state.player.position, { 0, math.sign(CFG.GRAV_FORS) }, state.tiles, false)
+	standADY := allowedDisplacement(state.player.position, { 0, math.sign(CFG.GRAV_FORS) }, state.tiles[:], false)
 	standing := standADY.distance == 0
 	
 	controlFors := standing ? CFG.WALK_FORS : CFG.FLY_FORS
@@ -67,7 +67,7 @@ updateKinetics :: proc(state: ^State) -> MotionState {
 	
 	gripped := false
 	if fors.x != 0 && !standing {
-		gripADX := allowedDisplacement(state.player.position, fors, state.tiles, true)
+		gripADX := allowedDisplacement(state.player.position, fors, state.tiles[:], true)
 		gripped = state.player.velocity.y * math.sign(CFG.GRAV_FORS) > 0 && gripADX.distance == 0
 	}
 
@@ -98,10 +98,10 @@ updateKinetics :: proc(state: ^State) -> MotionState {
 
 	intendedDisplacement := state.player.velocity + fors
 
-	adx := allowedDisplacement(state.player.position, intendedDisplacement, state.tiles, true)
+	adx := allowedDisplacement(state.player.position, intendedDisplacement, state.tiles[:], true)
 	fdx := utils.signedClamp(intendedDisplacement.x, adx.distance)
 
-	ady := allowedDisplacement(state.player.position, intendedDisplacement, state.tiles, false)
+	ady := allowedDisplacement(state.player.position, intendedDisplacement, state.tiles[:], false)
 	fdy := utils.signedClamp(intendedDisplacement.y, ady.distance)
 
 	vBounce := ady.distance == abs(fdy)

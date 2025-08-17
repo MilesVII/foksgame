@@ -1,8 +1,10 @@
-package game
+package assets
 
 import rl "vendor:raylib"
 
 import "core:fmt"
+import "core:encoding/json"
+import "core:os"
 
 @(private="file")
 ASS_FOPS :: "./assets/foks-sheet.png"
@@ -16,6 +18,21 @@ SpriteSheet :: struct {
 	texture: rl.Texture2D,
 	tileSize: int,
 	rowSizes: []int
+}
+
+LevelDataLayer :: struct {
+	width: int,
+	height: int,
+	x: int,
+	y: int,
+	data: []int,
+	name: string,
+	id: int
+}
+LevelData :: struct {
+	width: int,
+	height: int,
+	layers: []LevelDataLayer
 }
 
 loadAssets :: proc() -> Assets {
@@ -39,23 +56,12 @@ loadFopsSheet :: proc() -> SpriteSheet {
 	return SpriteSheet { tex, 22, { 5, 14, 8, 11, 1 } }
 }
 
-drawFrame :: proc(sheet: SpriteSheet, tile: [2]int, flipX: bool, at: [2]f32, size := [2]f32 { 1, 1 }) {
-	source := rl.Rectangle {
-		x = f32(tile.x * sheet.tileSize),
-		y = f32(tile.y * sheet.tileSize),
-		width = f32(sheet.tileSize) * (flipX ? -1 : 1),
-		height = f32(sheet.tileSize)
-	}
-	destination := rl.Rectangle {
-		x = at.x,
-		y = at.y,
-		width = size.x,
-		height = size.y,
-	}
-	rl.DrawTexturePro(
-		sheet.texture,
-		source, destination,
-		{ 0, 0 },
-		0, rl.WHITE
-	)
+loadLevel :: proc(path: string) -> (ld: LevelData, ok: bool) {
+	bytes, fOk := os.read_entire_file(path)
+	if !fOk do return ld, false
+
+	e := json.unmarshal(bytes, &ld, .JSON)
+	
+	if e != nil do return ld, false
+	return ld, true
 }

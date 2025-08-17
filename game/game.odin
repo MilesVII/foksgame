@@ -2,6 +2,8 @@ package game
 
 import rl "vendor:raylib"
 
+import "assets"
+
 import "core:fmt"
 import "core:net"
 import "core:math"
@@ -13,44 +15,6 @@ Tile :: struct {
 	position: [2]int
 }
 
-testiles := []Tile {
-	{ rl.BLACK, [2]int { 0, 1 } },
-	{ rl.BLACK, [2]int { 1, 1 } },
-	{ rl.BLACK, [2]int { 2, 2 } },
-	{ rl.BLACK, [2]int { 3, 3 } },
-	{ rl.BLACK, [2]int { 4, 4 } },
-	{ rl.BLACK, [2]int { 5, 5 } },
-	{ rl.BLACK, [2]int { 6, 6 } },
-	{ rl.BLACK, [2]int { 7, 7 } },
-
-	{ rl.BLACK, [2]int { -1, 1 } },
-	{ rl.BLACK, [2]int { -1, 0 } },
-	{ rl.BLACK, [2]int { -1, -1 } },
-	{ rl.BLACK, [2]int { 0, -1 } },
-	{ rl.BLACK, [2]int { 1, -1 } },
-	{ rl.BLACK, [2]int { 2, -1 } },
-	{ rl.BLACK, [2]int { 3, -1 } },
-	{ rl.BLACK, [2]int { 4, -1 } },
-	{ rl.BLACK, [2]int { 5, -1 } },
-	{ rl.BLACK, [2]int { 6, -1 } },
-	{ rl.BLACK, [2]int { 7, -1 } },
-	{ rl.BLACK, [2]int { 8, -1 } },
-	{ rl.BLACK, [2]int { 9, -1 } },
-	{ rl.BLACK, [2]int { 10, -1 } },
-	{ rl.BLACK, [2]int { 11, -1 } },
-	{ rl.BLACK, [2]int { 12, -1 } },
-	{ rl.BLACK, [2]int { 12, 0 } },
-	{ rl.BLACK, [2]int { 12, 1 } },
-	{ rl.BLACK, [2]int { 12, 2 } },
-	{ rl.BLACK, [2]int { 12, 3 } },
-	{ rl.BLACK, [2]int { 12, 4 } },
-	{ rl.BLACK, [2]int { 12, 5 } },
-	{ rl.BLACK, [2]int { 12, 6 } },
-	{ rl.BLACK, [2]int { 12, 7 } },
-	{ rl.BLACK, [2]int { 12, 8 } },
-	{ rl.BLACK, [2]int { 12, 9 } },
-}
-
 Player :: struct {
 	position: [2]f32,
 	velocity: [2]f32,
@@ -59,15 +23,13 @@ Player :: struct {
 }
 
 State :: struct {
-	tiles: []Tile,
+	tiles: [dynamic]Tile,
 	player: Player,
-	assets: Assets
+	assets: assets.Assets
 }
 
 game :: proc() {
-	gameState := State {
-		tiles = testiles
-	}
+	gameState: State
 	
 	rl.SetTraceLogLevel(.WARNING)
 	rl.SetConfigFlags({ .WINDOW_RESIZABLE })
@@ -80,7 +42,8 @@ game :: proc() {
 	onResize()
 	// rl.InitAudioDevice()
 
-	gameState.assets = loadAssets()
+	gameState.assets = assets.loadAssets()
+	loadLevel(&gameState, 0)
 
 	for !rl.WindowShouldClose() {
 		updateUI(&gameState)
