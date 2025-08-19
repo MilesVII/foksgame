@@ -26,7 +26,7 @@ Config :: struct {
 CFG :: Config {
 	GRAV_FORS    = .4375,
 	JUMP_IMP     = -.1002,
-	UNGRIP_IMP   = { -.1488, -.1302 },
+	UNGRIP_IMP   = { -.0788, -.1302 },
 	WALK_FORS    = .42,
 	FLY_FORS     = .28,
 	BOUNCE_EPS   = .01,
@@ -146,13 +146,15 @@ allowedDisplacement :: proc(origin: [2]f32, direction: [2]f32, tileset: []Tile, 
 	maxDisplacement := math.INF_F32
 	nearestTile: Tile
 	tileFound := false
+	boxSize := f32(2)
+	tileSize := f32(1)
 
 	if isXAxis {
-		bumper = math.sign(direction.x) > 0 ? origin.x + 1 : origin.x
-		originProjection = { origin.y, origin.y + 1 }
+		bumper = direction.x > 0 ? origin.x + boxSize : origin.x
+		originProjection = { origin.y, origin.y + boxSize }
 	} else {
-		bumper = math.sign(direction.y) > 0 ? origin.y + 1 : origin.y
-		originProjection = { origin.x, origin.x + 1 }
+		bumper = direction.y > 0 ? origin.y + boxSize : origin.y
+		originProjection = { origin.x, origin.x + boxSize }
 	}
 
 	for tile in tileset {
@@ -161,20 +163,19 @@ allowedDisplacement :: proc(origin: [2]f32, direction: [2]f32, tileset: []Tile, 
 		onCourse: bool
 
 		if isXAxis {
-			tileProjection = { tileOrigin.y, tileOrigin.y + 1}
+			tileProjection = { tileOrigin.y, tileOrigin.y + tileSize}
 			onCourse = math.sign(direction.x) == math.sign(tileOrigin.x - origin.x)
 		} else {
-			tileProjection = { tileOrigin.x,  tileOrigin.x + 1}
+			tileProjection = { tileOrigin.x,  tileOrigin.x + tileSize}
 			onCourse = math.sign(direction.y) == math.sign(tileOrigin.y - origin.y)
 		}
-
 
 		if (rangeOverlap(originProjection, tileProjection) && onCourse){
 			tileBumper: f32
 			if isXAxis {
-				tileBumper = math.sign(direction.x) > 0 ? tileOrigin.x : tileOrigin.x + 1
+				tileBumper = direction.x > 0 ? tileOrigin.x : tileOrigin.x + tileSize
 			} else {
-				tileBumper = math.sign(direction.y) > 0 ? tileOrigin.y : tileOrigin.y + 1
+				tileBumper = direction.y > 0 ? tileOrigin.y : tileOrigin.y + tileSize
 			}
 			distance := abs(tileBumper - bumper)
 			if distance < maxDisplacement {

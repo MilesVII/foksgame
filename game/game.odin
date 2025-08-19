@@ -75,7 +75,8 @@ drawWorld :: proc(state: ^State) {
 		state.assets.fops,
 		animationFrame(&state.player.animation),
 		state.player.motion.direction == .LEFT,
-		state.player.position
+		state.player.position,
+		{ 2, 2 }
 	)
 }
 

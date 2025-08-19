@@ -27,10 +27,9 @@ loadLevel :: proc(state: ^State, id: i32) {
 	w := levelData.width
 	for layer in levelData.layers {
 		for t, i in layer.data {
-			x := i % layer.width
-			y := i / layer.width
+			x := i % layer.width + layer.x
+			y := i / layer.width + layer.y
 
-			
 			#partial switch TILE_TYPE(t) {
 				case .EMPTY:
 				case .SOLID: {
@@ -46,7 +45,7 @@ loadLevel :: proc(state: ^State, id: i32) {
 					})
 				}
 				case .SPAWN: {
-					state.player.position = { f32(x), f32(y) }
+					state.player.position = { f32(x), f32(y - 1) }
 				}
 			}
 		}
