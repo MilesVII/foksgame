@@ -136,15 +136,15 @@ updateKinetics :: proc(state: ^State) -> MotionState {
 }
 
 CastResult :: struct {
-	nearest: Tile,
+	// nearest: Tile,
 	tileFound: bool,
 	distance: f32
 }
-allowedDisplacement :: proc(origin: [2]f32, direction: [2]f32, tileset: []Tile, isXAxis: bool) -> CastResult {
+allowedDisplacement :: proc(origin: [2]f32, direction: [2]f32, tileset: []Tilemap, isXAxis: bool) -> CastResult {
 	bumper: f32
 	originProjection: [2]f32
 	maxDisplacement := math.INF_F32
-	nearestTile: Tile
+	// nearestTile: Tile
 	tileFound := false
 	boxSize := f32(2)
 	tileSize := f32(1)
@@ -157,8 +157,11 @@ allowedDisplacement :: proc(origin: [2]f32, direction: [2]f32, tileset: []Tile, 
 		originProjection = { origin.x, origin.x + boxSize }
 	}
 
-	for tile in tileset {
-		tileOrigin := linalg.array_cast(tile.position, f32)
+	for tilemap in tileset do for tile, tix in tilemap.tiles {
+		if tile == 0 do continue
+		tilePosition := linalg.array_cast(utils.pos2dv(tix, tilemap.size.x), f32) + tilemap.offset
+
+		tileOrigin := tilePosition
 		tileProjection: [2]f32
 		onCourse: bool
 
@@ -180,14 +183,14 @@ allowedDisplacement :: proc(origin: [2]f32, direction: [2]f32, tileset: []Tile, 
 			distance := abs(tileBumper - bumper)
 			if distance < maxDisplacement {
 				maxDisplacement = distance
-				nearestTile = tile
+				// nearestTile = tile
 				tileFound = true
 			}
 		}
 	}
 
 	return {
-		nearest = nearestTile,
+		// nearest = nearestTile,
 		distance = maxDisplacement,
 		tileFound = tileFound
 	}

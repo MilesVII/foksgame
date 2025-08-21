@@ -59,3 +59,18 @@ vClamp :: proc(v: [2]f32, min: [2]f32, max: [2]f32) -> [2]f32 {
 		clamp(v.y, min.y, max.y)
 	}
 }
+
+ix2d :: proc(x: int, y: int, w: int) -> int {
+	return x + y * w
+}
+ix2dv :: proc(v: [2]int, w: int) -> int {
+	return v.x + v.y * w
+}
+pos2d :: proc(ix: int, w: int) -> (x: int, y: int) {
+	x = ix % w
+	y = ix / w
+	return
+}
+pos2dv :: proc(ix: int, w: int) -> [2]int {
+	return { ix % w, ix / w }
+}

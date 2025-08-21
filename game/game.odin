@@ -10,9 +10,12 @@ import "core:math"
 import "core:math/rand"
 import "core:math/linalg"
 
-Tile :: struct {
-	color: rl.Color,
-	position: [2]int
+
+Tilemap :: struct {
+	size: [2]int,
+	offset: [2]f32,
+	tiles: []u8,
+	dualgrid: [][2]int
 }
 
 Player :: struct {
@@ -23,7 +26,7 @@ Player :: struct {
 }
 
 State :: struct {
-	tiles: [dynamic]Tile,
+	tiles: [dynamic]Tilemap,
 	player: Player,
 	assets: assets.Assets
 }
@@ -67,8 +70,8 @@ game :: proc() {
 
 @(private)
 drawWorld :: proc(state: ^State) {
-	for tile in state.tiles {
-		drawBox(f32(tile.position.x), f32(tile.position.y), tile.color)
+	for &tile in state.tiles {
+		drawTilemap(state, &tile)
 	}
 	// drawBox(state.player.position.x, state.player.position.y, rl.GREEN)
 	drawFrame(

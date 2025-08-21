@@ -8,9 +8,12 @@ import "core:os"
 
 @(private="file")
 ASS_FOPS :: "./assets/foks-sheet.png"
+@(private="file")
+ASS_STON :: "./assets/gfx/16x4x4_solid_template.png"
 
 Assets :: struct {
 	fops: SpriteSheet,
+	ston: SpriteSheet,
 	bg: []rl.Texture
 }
 
@@ -38,6 +41,7 @@ LevelData :: struct {
 loadAssets :: proc() -> Assets {
 	return {
 		fops = loadFopsSheet(),
+		ston = loadStoneSheet(),
 		bg = loadBgSet("./assets/bg/sky/", 9, "png")
 	}
 }
@@ -54,6 +58,12 @@ loadBgSet :: proc(path: string, $count: i32, ext: string) -> []rl.Texture {
 loadFopsSheet :: proc() -> SpriteSheet {
 	tex := rl.LoadTexture(ASS_FOPS)
 	return SpriteSheet { tex, 22, { 5, 14, 8, 11, 1 } }
+}
+
+@(private="file")
+loadStoneSheet :: proc() -> SpriteSheet {
+	tex := rl.LoadTexture(ASS_STON)
+	return SpriteSheet { tex, 16, { 4, 4, 4, 4 } }
 }
 
 loadLevel :: proc(path: string) -> (ld: LevelData, ok: bool) {
