@@ -5,6 +5,8 @@ import rl "vendor:raylib"
 import "assets"
 import "utils"
 
+import "core:math/rand"
+
 LEVEL_PATHS := []string {
 	"./assets/levels/tutorial.json",
 	"./assets/levels/shaft.json",
@@ -33,7 +35,8 @@ loadLevel :: proc(state: ^State, id: i32) {
 			size = { layer.width, layer.height },
 			offset = { f32(layer.x), f32(layer.y) },
 			tiles = make([]u8, layer.width * layer.height),
-			dualgrid = make([][2]int, 2 * (layer.width + 1) * (layer.height + 1))
+			dualgrid = make([][2]int, 2 * (layer.width + 1) * (layer.height + 1)),
+			rnd = make([]int, 2 * (layer.width + 1) * (layer.height + 1))
 		}
 		assert(len(tm.tiles) == len(layer.data))
 
@@ -76,7 +79,9 @@ loadLevel :: proc(state: ^State, id: i32) {
 				(sw ? 0b0100 : 0) +
 				(se ? 0b1000 : 0)
 			)
-			tm.dualgrid[utils.ix2d(x, y, layer.width + 1)] = utils.pos2dv(int(stix), 4)
+			ix := utils.ix2d(x, y, layer.width + 1)
+			tm.dualgrid[ix] = utils.pos2dv(int(stix), 4)
+			tm.rnd[ix] = rand.int_max(2)
 		}
 
 		append(&state.tiles, tm)

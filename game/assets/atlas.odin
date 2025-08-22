@@ -6,6 +6,7 @@ import rlgl "vendor:raylib/rlgl"
 import "../utils"
 
 import "core:math/linalg"
+import "core:fmt"
 
 @(private="file")
 UV :: struct {
@@ -33,9 +34,12 @@ atlas :: proc(sheet: SpriteSheet) -> Atlas {
 		sheet.texture.width, sheet.texture.height,
 		i32(rlgl.PixelFormat.UNCOMPRESSED_R8G8B8A8)
 	)
+	rl.UnloadTexture(sheet.texture)
+	defer rl.UnloadImage(rl.Image { data = original })
 	
 	oLen := sheet.texture.width * sheet.texture.height
 	bordered := make([][4]u8, w * h)
+	defer delete(bordered)
 	borderedTilesize := sheet.tileSize + { 2, 2 }
 
 	for i in 0..<oLen {
@@ -93,7 +97,6 @@ atlas :: proc(sheet: SpriteSheet) -> Atlas {
 			origin = origin + normalBorderOffset,
 			size   = normalTile
 		}
-
 	}
 
 	return a

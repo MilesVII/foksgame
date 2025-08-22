@@ -9,11 +9,14 @@ import "core:os"
 @(private="file")
 ASS_FOPS :: "./assets/foks-sheet.png"
 @(private="file")
-ASS_STON :: "./assets/gfx/16x4x4_solid_template.png"
+ASS_STON :: []cstring {
+	"./assets/gfx/16x4x4_solid_template.png",
+	"./assets/gfx/16x4x4_solid_template_red.png"
+}
 
 Assets :: struct {
 	fops: SpriteSheet,
-	ston: Atlas,
+	ston: []Atlas,
 	bg: []rl.Texture
 }
 
@@ -39,9 +42,13 @@ LevelData :: struct {
 }
 
 loadAssets :: proc() -> Assets {
+	fops := loadFopsSheet()
+	stonAtlasi := make([]Atlas, len(ASS_STON))
+	for path, i in ASS_STON do stonAtlasi[i] = atlas(loadStoneSheet(path))
+
 	return {
-		fops = loadFopsSheet(),
-		ston = atlas(loadStoneSheet()),
+		fops = fops,
+		ston = stonAtlasi,
 		bg = loadBgSet("./assets/bg/sky/", 9, "png")
 	}
 }
@@ -61,8 +68,8 @@ loadFopsSheet :: proc() -> SpriteSheet {
 }
 
 @(private="file")
-loadStoneSheet :: proc() -> SpriteSheet {
-	tex := rl.LoadTexture(ASS_STON)
+loadStoneSheet :: proc(path: cstring) -> SpriteSheet {
+	tex := rl.LoadTexture(path)
 	return SpriteSheet { tex, { 16, 16 }, { 4, 4, 4, 4 } }
 }
 

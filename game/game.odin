@@ -15,7 +15,8 @@ Tilemap :: struct {
 	size: [2]int,
 	offset: [2]f32,
 	tiles: []u8,
-	dualgrid: [][2]int
+	dualgrid: [][2]int,
+	rnd: []int
 }
 
 Player :: struct {
@@ -71,9 +72,8 @@ game :: proc() {
 @(private)
 drawWorld :: proc(state: ^State) {
 	for &tile in state.tiles {
-		drawTilemap(state, &tile)
+		drawTilemap(state, state.assets.ston, &tile)
 	}
-	// drawBox(state.player.position.x, state.player.position.y, rl.GREEN)
 	drawFrame(
 		state.assets.fops,
 		animationFrame(&state.player.animation),
@@ -89,7 +89,6 @@ drawHUD :: proc(state: ^State) {
 	// screenspace hud
 
 	rl.BeginMode2D(camera)
-
 	// projection
 	rl.EndMode2D()
 }

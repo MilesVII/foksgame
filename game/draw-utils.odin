@@ -7,6 +7,7 @@ import "assets"
 import "utils"
 
 import "core:math/linalg"
+import "core:fmt"
 
 drawBox :: proc(x: f32, y: f32, color := rl.BLACK , w: f32 = 1, h: f32 = 1) {
 	rl.DrawRectangleRec(
@@ -15,18 +16,19 @@ drawBox :: proc(x: f32, y: f32, color := rl.BLACK , w: f32 = 1, h: f32 = 1) {
 	)
 }
 
-drawTilemap :: proc(state: ^State, tilemap: ^Tilemap) {
+drawTilemap :: proc(state: ^State, atlasi: []assets.Atlas, tilemap: ^Tilemap) {
 	origin := linalg.array_cast(tilemap.offset, f32) + [2]f32 { -.5, -.5 }
 
 	rlgl.Begin(rlgl.TRIANGLES)
-	rlgl.SetTexture(state.assets.ston.texture.id)
 	rlgl.Color4ub(255, 255, 255, 255)
-
-	for dualTile, ix in tilemap.dualgrid {
-		toff := utils.pos2dv(ix, tilemap.size.x + 1)
-		drawFrameTiled(state.assets.ston, dualTile, origin, toff)
+	for a, aix in atlasi {
+		rlgl.SetTexture(a.texture.id)
+	
+		for dualTile, ix in tilemap.dualgrid {
+			toff := utils.pos2dv(ix, tilemap.size.x + 1)
+			if tilemap.rnd[ix] == aix do drawFrameTiled(a, dualTile, origin, toff)
+		}
 	}
-
 	rlgl.End()
 	rlgl.SetTexture(0)
 }
@@ -74,7 +76,6 @@ drawFrameTiled :: proc(atlas: assets.Atlas, tile: [2]int, origin: [2]f32, offset
 		2, 3, 0
 	}
 
-	
 	for i in ixes {
 		rlgl.TexCoord2f(uv[i].x, uv[i].y)
 		rlgl.Vertex2f(vertesex[i].x, vertesex[i].y)
