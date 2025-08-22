@@ -74,3 +74,9 @@ pos2d :: proc(ix: int, w: int) -> (x: int, y: int) {
 pos2dv :: proc(ix: int, w: int) -> [2]int {
 	return { ix % w, ix / w }
 }
+
+arrMax :: proc(a: []$T) -> T {
+	v: T
+	for i in a do if i > v do v = i
+	return v
+}

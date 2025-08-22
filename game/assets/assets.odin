@@ -13,13 +13,13 @@ ASS_STON :: "./assets/gfx/16x4x4_solid_template.png"
 
 Assets :: struct {
 	fops: SpriteSheet,
-	ston: SpriteSheet,
+	ston: Atlas,
 	bg: []rl.Texture
 }
 
 SpriteSheet :: struct {
 	texture: rl.Texture2D,
-	tileSize: int,
+	tileSize: [2]int,
 	rowSizes: []int
 }
 
@@ -41,7 +41,7 @@ LevelData :: struct {
 loadAssets :: proc() -> Assets {
 	return {
 		fops = loadFopsSheet(),
-		ston = loadStoneSheet(),
+		ston = atlas(loadStoneSheet()),
 		bg = loadBgSet("./assets/bg/sky/", 9, "png")
 	}
 }
@@ -57,13 +57,13 @@ loadBgSet :: proc(path: string, $count: i32, ext: string) -> []rl.Texture {
 @(private="file")
 loadFopsSheet :: proc() -> SpriteSheet {
 	tex := rl.LoadTexture(ASS_FOPS)
-	return SpriteSheet { tex, 22, { 5, 14, 8, 11, 1 } }
+	return SpriteSheet { tex, { 22, 22 }, { 5, 14, 8, 11, 1 } }
 }
 
 @(private="file")
 loadStoneSheet :: proc() -> SpriteSheet {
 	tex := rl.LoadTexture(ASS_STON)
-	return SpriteSheet { tex, 16, { 4, 4, 4, 4 } }
+	return SpriteSheet { tex, { 16, 16 }, { 4, 4, 4, 4 } }
 }
 
 loadLevel :: proc(path: string) -> (ld: LevelData, ok: bool) {
