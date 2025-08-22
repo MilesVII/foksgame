@@ -26,7 +26,7 @@ drawTilemap :: proc(state: ^State, atlasi: []assets.Atlas, tilemap: ^Tilemap) {
 	
 		for dualTile, ix in tilemap.dualgrid {
 			toff := utils.pos2dv(ix, tilemap.size.x + 1)
-			if tilemap.rnd[ix] == aix do drawFrameTiled(a, dualTile, origin, toff)
+			if dualTile.atlasIx == aix do drawFrameTiled(a, dualTile.tileIx, origin, toff)
 		}
 	}
 	rlgl.End()

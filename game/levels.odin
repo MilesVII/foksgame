@@ -35,8 +35,7 @@ loadLevel :: proc(state: ^State, id: i32) {
 			size = { layer.width, layer.height },
 			offset = { f32(layer.x), f32(layer.y) },
 			tiles = make([]u8, layer.width * layer.height),
-			dualgrid = make([][2]int, 2 * (layer.width + 1) * (layer.height + 1)),
-			rnd = make([]int, 2 * (layer.width + 1) * (layer.height + 1))
+			dualgrid = make([]DGTile, 2 * (layer.width + 1) * (layer.height + 1))
 		}
 		assert(len(tm.tiles) == len(layer.data))
 
@@ -80,8 +79,10 @@ loadLevel :: proc(state: ^State, id: i32) {
 				(se ? 0b1000 : 0)
 			)
 			ix := utils.ix2d(x, y, layer.width + 1)
-			tm.dualgrid[ix] = utils.pos2dv(int(stix), 4)
-			tm.rnd[ix] = rand.int_max(2)
+			tm.dualgrid[ix] = {
+				tileIx = utils.pos2dv(int(stix), 4),
+				atlasIx = rand.int_max(2)
+			}
 		}
 
 		append(&state.tiles, tm)

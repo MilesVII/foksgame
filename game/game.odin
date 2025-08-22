@@ -11,12 +11,15 @@ import "core:math/rand"
 import "core:math/linalg"
 
 
+DGTile :: struct {
+	tileIx: [2]int,
+	atlasIx: int
+}
 Tilemap :: struct {
 	size: [2]int,
 	offset: [2]f32,
 	tiles: []u8,
-	dualgrid: [][2]int,
-	rnd: []int
+	dualgrid: []DGTile
 }
 
 Player :: struct {
