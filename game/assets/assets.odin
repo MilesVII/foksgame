@@ -20,6 +20,11 @@ Assets :: struct {
 	bg: []rl.Texture
 }
 
+SpriteSheetGrid :: struct {
+	tileSize: [2]int,
+	tileCount: [2]int
+}
+
 SpriteSheet :: struct {
 	texture: rl.Texture2D,
 	tileSize: [2]int,
@@ -44,7 +49,7 @@ LevelData :: struct {
 loadAssets :: proc() -> Assets {
 	fops := loadFopsSheet()
 	stonAtlasi := make([]Atlas, len(ASS_STON))
-	for path, i in ASS_STON do stonAtlasi[i] = atlas(loadStoneSheet(path))
+	for path, i in ASS_STON do stonAtlasi[i] = atlas(path, { { 16, 16 }, { 4, 4 } })
 
 	return {
 		fops = fops,
@@ -65,12 +70,6 @@ loadBgSet :: proc(path: string, $count: i32, ext: string) -> []rl.Texture {
 loadFopsSheet :: proc() -> SpriteSheet {
 	tex := rl.LoadTexture(ASS_FOPS)
 	return SpriteSheet { tex, { 22, 22 }, { 5, 14, 8, 11, 1 } }
-}
-
-@(private="file")
-loadStoneSheet :: proc(path: cstring) -> SpriteSheet {
-	tex := rl.LoadTexture(path)
-	return SpriteSheet { tex, { 16, 16 }, { 4, 4, 4, 4 } }
 }
 
 loadLevel :: proc(path: string) -> (ld: LevelData, ok: bool) {

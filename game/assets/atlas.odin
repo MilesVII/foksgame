@@ -21,31 +21,28 @@ Atlas :: struct {
 	uvs: []UV
 }
 
-atlas :: proc(sheet: SpriteSheet) -> Atlas {
+atlas :: proc(file: cstring, grid: SpriteSheetGrid) -> Atlas {
+	image := rl.LoadImage(file)
+	defer rl.UnloadImage(image)
+
 	a := Atlas {
-		tileCount = { utils.arrMax(sheet.rowSizes), len(sheet.rowSizes) }
+		tileCount = grid.tileCount
 	}
 
-	w := int(sheet.texture.width) + a.tileCount.x *  2
-	h := int(sheet.texture.height) + a.tileCount.y * 2
+	w := int(image.width) + a.tileCount.x *  2
+	h := int(image.height) + a.tileCount.y * 2
 	
-	original := transmute([^][4]u8)rlgl.ReadTexturePixels(
-		sheet.texture.id,
-		sheet.texture.width, sheet.texture.height,
-		i32(rlgl.PixelFormat.UNCOMPRESSED_R8G8B8A8)
-	)
-	rl.UnloadTexture(sheet.texture)
-	defer rl.UnloadImage(rl.Image { data = original })
-	
-	oLen := sheet.texture.width * sheet.texture.height
+	original := transmute([^][4]u8)image.data
+
+	oLen := image.width * image.height
 	bordered := make([][4]u8, w * h)
 	defer delete(bordered)
-	borderedTilesize := sheet.tileSize + { 2, 2 }
+	borderedTilesize := grid.tileSize + { 2, 2 }
 
 	for i in 0..<oLen {
-		oPos := utils.pos2dv(int(i), int(sheet.texture.width))
-		tPos := oPos / sheet.tileSize
-		tSpace := oPos - tPos * sheet.tileSize
+		oPos := utils.pos2dv(int(i), int(image.width))
+		tPos := oPos / grid.tileSize
+		tSpace := oPos - tPos * grid.tileSize
 
 		target := tPos * borderedTilesize + ({ 1, 1 } + tSpace)
 		src := original[i]
@@ -56,7 +53,7 @@ atlas :: proc(sheet: SpriteSheet) -> Atlas {
 		}
 		if tSpace.x == 0 do bordered[ix(target, { -1, 0 }, w)] = src
 		if tSpace.y == 0 do bordered[ix(target, { 0, -1 }, w)] = src
-		highBound := sheet.tileSize - { 1, 1 }
+		highBound := grid.tileSize - { 1, 1 }
 		if tSpace.x == highBound.x do bordered[ix(target, { 1, 0 }, w)] = src
 		if tSpace.y == highBound.y do bordered[ix(target, { 0, 1 }, w)] = src
 
@@ -91,7 +88,7 @@ atlas :: proc(sheet: SpriteSheet) -> Atlas {
 		sheetSize  := linalg.array_cast( [2]int { w, h }, f32)
 		origin     := linalg.array_cast(borderedTilesize * tPos, f32) / sheetSize
 		normalGrid := linalg.array_cast(borderedTilesize, f32) / sheetSize
-		normalTile := linalg.array_cast(sheet.tileSize,   f32) / sheetSize
+		normalTile := linalg.array_cast(grid.tileSize,   f32)  / sheetSize
 		normalBorderOffset := (normalGrid - normalTile) * .5
 		a.uvs[i] = UV {
 			origin = origin + normalBorderOffset,
