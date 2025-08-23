@@ -6,6 +6,7 @@ import rlgl "vendor:raylib/rlgl"
 import "assets"
 import "utils"
 
+import "core:math"
 import "core:math/linalg"
 import "core:fmt"
 
@@ -80,4 +81,18 @@ drawFrameTiled :: proc(atlas: assets.Atlas, tile: [2]int, origin: [2]f32, offset
 		rlgl.TexCoord2f(uv[i].x, uv[i].y)
 		rlgl.Vertex2f(vertesex[i].x, vertesex[i].y)
 	}
+}
+
+drawPaxFrame :: proc(t: rl.Texture, offset: f32) {
+	offset := offset - math.trunc(offset)
+
+	tSize := [2]f32 { f32(t.width), f32(t.height) }
+	scale := max(windowSizeF.x / tSize.x, windowSizeF.y / tSize.y)
+	scaledW := tSize.x * scale
+	centering := (tSize * scale - windowSizeF) * .5
+	slide := [2]f32 { scaledW * offset, 0 }
+
+	rl.DrawTextureEx(t, slide - centering + { scaledW * -1, 0 }, 0, scale, rl.WHITE)
+	rl.DrawTextureEx(t, slide - centering + { scaledW *  0, 0 }, 0, scale, rl.WHITE)
+	rl.DrawTextureEx(t, slide - centering + { scaledW *  1, 0 }, 0, scale, rl.WHITE)
 }

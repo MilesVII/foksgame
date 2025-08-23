@@ -108,21 +108,6 @@ drawBack :: proc(state: ^State) {
 }
 
 @(private)
-drawPaxFrame :: proc(t: rl.Texture, offset: f32) {
-	offset := offset - math.trunc(offset)
-
-	tSize := [2]f32 { f32(t.width), f32(t.height) }
-	scale := max(windowSizeF.x / tSize.x, windowSizeF.y / tSize.y)
-	scaledW := tSize.x * scale
-	centering := (tSize * scale - windowSizeF) * .5
-	slide := [2]f32 { scaledW * offset, 0 }
-
-	rl.DrawTextureEx(t, slide - centering + { scaledW * -1, 0 }, 0, scale, rl.WHITE)
-	rl.DrawTextureEx(t, slide - centering + { scaledW *  0, 0 }, 0, scale, rl.WHITE)
-	rl.DrawTextureEx(t, slide - centering + { scaledW *  1, 0 }, 0, scale, rl.WHITE)
-}
-
-@(private)
 update :: proc(state: ^State) {
 	updateControls()
 	state.player.motion = updateKinetics(state)
