@@ -20,7 +20,7 @@ drawBox :: proc(x: f32, y: f32, color := rl.BLACK , w: f32 = 1, h: f32 = 1) {
 drawTilemap :: proc(state: ^State, atlasi: []assets.Atlas, tilemap: ^Tilemap) {
 	origin := linalg.array_cast(tilemap.offset, f32) + [2]f32 { -.5, -.5 }
 
-	rlgl.Begin(rlgl.TRIANGLES)
+	rlgl.Begin(rlgl.QUADS)
 	rlgl.Color4ub(255, 255, 255, 255)
 	for a, aix in atlasi {
 		rlgl.SetTexture(a.texture.id)
@@ -72,10 +72,7 @@ drawFrameTiled :: proc(atlas: assets.Atlas, tile: [2]int, origin: [2]f32, offset
 		({ 1, 1 } * uvData.size + uvData.origin),
 		({ 1, 0 } * uvData.size + uvData.origin)
 	}
-	ixes := [6]int {
-		1, 2, 0,
-		2, 3, 0
-	}
+	ixes := [4]int { 0, 1, 2, 3 }
 
 	for i in ixes {
 		rlgl.TexCoord2f(uv[i].x, uv[i].y)
