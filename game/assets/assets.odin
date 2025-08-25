@@ -11,7 +11,8 @@ ASS_FOPS :: "./assets/foks-sheet.png"
 @(private="file")
 ASS_STON :: []cstring {
 	"./assets/gfx/16x4x4_solid_template.png",
-	"./assets/gfx/16x4x4_solid_template_red.png"
+	"./assets/gfx/16x4x4_solid_template_red.png",
+	"./assets/gfx/16x4x4_solid_template_cyan.png"
 }
 
 Assets :: struct {

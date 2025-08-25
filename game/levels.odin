@@ -81,7 +81,7 @@ loadLevel :: proc(state: ^State, id: i32) {
 			ix := utils.ix2d(x, y, layer.width + 1)
 			tm.dualgrid[ix] = {
 				tileIx = utils.pos2dv(int(stix), 4),
-				atlasIx = rand.int_max(2)
+				atlasIx = rand.int_max(256)
 			}
 		}
 
